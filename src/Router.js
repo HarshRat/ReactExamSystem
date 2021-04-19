@@ -1,18 +1,13 @@
 import React, { useContext } from "react";
 import { useRoutes, useRedirect } from "hookrouter";
 import { routes, guestRoutes } from "./Routes";
-// import NotFound from "./components/pages/NotFound";
-// import AuthContext from "./contexts/AuthContext";
-// import LanguageContext from './contexts/LanguageContext';
+import AuthContext from "./contexts/AuthContext";
 
 const Router = () => {
-  useRedirect("/register", "/contest");
-
-//   const { user, uid } = useContext(AuthContext);
-//   // const language = useContext(LanguageContext).data;
-//   const routeResult = useRoutes(user && uid ? routes : guestRoutes);
-
-  const routeResult = useRoutes(routes);
+  const { user, uid } = useContext(AuthContext);
+  const routeResult = useRoutes(user && uid ? routes : guestRoutes);
+  
+  console.log("Current User: ", user);
 
   return (
     <React.Fragment>

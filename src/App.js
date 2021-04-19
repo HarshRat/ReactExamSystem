@@ -1,10 +1,13 @@
 import Router from "./Router";
 import "tailwindcss/dist/base.min.css";
-import './App.css';
+import "./App.css";
+import { AuthProvider } from "./contexts/AuthContext";
 
 function App() {
   return (
-    <Router />
+    <AuthProvider>
+      <Router />
+    </AuthProvider>
   );
 }
 

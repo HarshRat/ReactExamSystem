@@ -4,10 +4,11 @@ import { Container as ContainerBase } from "../misc/Layouts";
 import tw from "twin.macro";
 import styled from "styled-components";
 import { css } from "styled-components/macro"; //eslint-disable-line
-import illustration from "../images/login.svg";
+import illustration from "../images/signup.svg";
+import { ReactComponent as CircleCheckIcon } from "feather-icons/dist/icons/check.svg";
 import { ReactComponent as LoginIcon } from "feather-icons/dist/icons/log-in.svg";
 import { useFormik } from "formik";
-import { auth } from "../firebase.config";
+import { auth, firestore } from "../firebase.config";
 import { navigate } from "hookrouter";
 
 const Container = tw(
@@ -42,8 +43,8 @@ const validate = (values) => {
 
   if (!values.email) {
     errors.email = "Email Required";
-  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-    errors.email = "Invalid email address";
+  } else if (!/^[A-Z0-9._%+-]+@nitc.ac.in$/i.test(values.email)) {
+    errors.email = "Use NITC Mail";
   }
 
   if (!values.password) {
@@ -53,15 +54,28 @@ const validate = (values) => {
   return errors;
 };
 
-const Login = ({
+const SignUp = ({
   logoLinkUrl = "#",
   illustrationImageSrc = illustration,
-  headingText = "Sign In To Exam Platform",
-  submitButtonText = "Sign In",
+  headingText = "Sign Up To Exam Platform",
+  submitButtonText = "Sign Up",
   SubmitButtonIcon = LoginIcon,
   forgotPasswordUrl = "#",
-  signupUrl = "/signup",
+  signupUrl = "/login",
 }) => {
+  const asyncLocalStorage = {
+    setItem: function (key, value) {
+      return Promise.resolve().then(function () {
+        localStorage.setItem(key, value);
+      });
+    },
+    getItem: function (key) {
+      return Promise.resolve().then(function () {
+        return localStorage.getItem(key);
+      });
+    },
+  };
+
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -70,15 +84,34 @@ const Login = ({
     validate,
     onSubmit: (values) => {
       auth
-        .signInWithEmailAndPassword(values.email, values.password)
-        .then(() => {
-          navigate("/");
+        .createUserWithEmailAndPassword(values.email, values.password)
+        .then(({user}) => {
+          const data = {
+            email: values.email,
+            userType: userType,
+          };
+          firestore
+            .collection("user")
+            .doc(user.uid)
+            .set(data)
+            .then(() => {
+              asyncLocalStorage.setItem("email", values.email);
+              asyncLocalStorage.setItem("userType", userType);
+              navigate("/");
+            })
+            .catch((e) => {
+                alert("Error: ", e.message);
+            });
         })
         .catch((err) => {
-          alert("Sign In Error: ", err.message);
+          alert("Sign Up Error: ", err.message);
+          console.log("err: ", err);
         });
     },
   });
+
+  const [userType, setUserType] = React.useState("student");
+
   return (
     <AnimationRevealPage>
       <Container>
@@ -89,6 +122,34 @@ const Login = ({
               <FormContainer>
                 <br />
                 <Form onSubmit={formik.handleSubmit}>
+                  <div tw="flex flex-col">
+                    <label tw="mb-1 cursor-pointer rounded p-2 bg-gray-300 text-gray-900 text-center font-semibold text-sm">
+                      <input
+                        type="radio"
+                        name="age"
+                        tw="invisible"
+                        value="teacher"
+                        onClick={() => setUserType("teacher")}
+                      />
+                      Teacher
+                    </label>
+                    {userType === "teacher" && (
+                      <CircleCheckIcon tw="h-5 w-5 p-1 -mt-3 mx-auto bg-green-700 rounded-full text-white" />
+                    )}
+                    <label tw="mt-1 p-2 cursor-pointer rounded bg-black text-white text-center font-semibold text-sm">
+                      <input
+                        type="radio"
+                        name="age"
+                        tw="invisible"
+                        value="student"
+                        onClick={() => setUserType("student")}
+                      />
+                      Student
+                    </label>
+                    {userType === "student" && (
+                      <CircleCheckIcon tw="h-5 w-5 p-1 -mt-3 mx-auto bg-green-700 rounded-full text-white" />
+                    )}
+                  </div>
                   {formik.errors.email ? (
                     <ErrorMessage>{formik.errors.email}</ErrorMessage>
                   ) : null}
@@ -104,9 +165,9 @@ const Login = ({
                     <ErrorMessage>{formik.errors.password}</ErrorMessage>
                   ) : null}
                   <Input
-                    name="password"
                     type="password"
                     placeholder="Password"
+                    name="password"
                     onChange={formik.handleChange}
                     value={formik.values.password}
                   />
@@ -116,12 +177,12 @@ const Login = ({
                   </SubmitButton>
                 </Form>
                 <p tw="mt-8 text-sm text-gray-600 text-center">
-                  Dont have an account?{" "}
+                  Already have an account?{" "}
                   <a
                     href={signupUrl}
                     tw="border-b border-gray-500 border-dotted"
                   >
-                    Sign Up
+                    Log In
                   </a>
                 </p>
               </FormContainer>
@@ -136,4 +197,4 @@ const Login = ({
   );
 };
 
-export default Login;
+export default SignUp;
