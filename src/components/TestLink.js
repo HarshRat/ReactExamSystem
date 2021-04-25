@@ -83,7 +83,7 @@ const TestLink = (props) => {
             setQuestions(details.data().questions);
             setData(details);
             console.log(details.data());
-            console.log([...Array(parseInt(data.data().questions))]);
+            //console.log([...Array(parseInt(data.data().questions))]);
           } else {
             setQuestions(0);
           }
@@ -93,42 +93,59 @@ const TestLink = (props) => {
 
   const navLinks = [];
 
-  return (
-    <AnimationRevealPage>
-      <PrimaryBackgroundContainer>
-        <Content2Xl>
-          <Header logoLink={logoLink} links={navLinks} />
-          <div tw="bg-primary-500 rounded-lg p-20">
-            {questions === 0 ? (
-              <Container>
-                <h2 tw="text-3xl sm:text-4xl font-bold">Invalid Code</h2>
-              </Container>
-            ) : (
-              data && (
-                <div>
-                  <Container>
-                    <h2 tw="text-3xl sm:text-4xl font-bold">
-                      {data.data().testName}
-                    </h2>
-                    <h6 tw="text-xl sm:text-xl">
-                      Submit each answer individually
-                    </h6>
-                  </Container>
-                  <SubmitButton type="submit" value="Submit">
-                    Submit
-                  </SubmitButton>
-                </div>
-              )
-            )}
-          </div>
-
-          {questions !== 0 && [...Array(parseInt(data.data().questions))].map((x, i) => (
-            <Question questionNo={i + 1} code={props.code} />
-          ))}
-        </Content2Xl>
-      </PrimaryBackgroundContainer>
-    </AnimationRevealPage>
-  );
+  if (data === null) {
+    return (
+      <AnimationRevealPage>
+        <PrimaryBackgroundContainer>
+          <Content2Xl>
+            <Header logoLink={logoLink} links={navLinks} />
+            <div tw="bg-primary-500 rounded-lg p-20">
+                <Container>
+                  <h2 tw="text-3xl sm:text-4xl font-bold">Test Loading...</h2>
+                </Container>
+            </div>
+          </Content2Xl>
+        </PrimaryBackgroundContainer>
+      </AnimationRevealPage>
+    );
+  } else {
+    return (
+      <AnimationRevealPage>
+        <PrimaryBackgroundContainer>
+          <Content2Xl>
+            <Header logoLink={logoLink} links={navLinks} />
+            <div tw="bg-primary-500 rounded-lg p-20">
+              {questions === 0 ? (
+                <Container>
+                  <h2 tw="text-3xl sm:text-4xl font-bold">Invalid Code</h2>
+                </Container>
+              ) : (
+                data && (
+                  <div>
+                    <Container>
+                      <h2 tw="text-3xl sm:text-4xl font-bold">
+                        {data.data().testName}
+                      </h2>
+                      <h6 tw="text-xl sm:text-xl">
+                        Submit each answer individually
+                      </h6>
+                    </Container>
+                    <SubmitButton type="submit" value="Submit">
+                      Submit
+                    </SubmitButton>
+                  </div>
+                )
+              )}
+            </div>
+  
+            {questions !== 0 && [...Array(parseInt(data.data().questions))].map((x, i) => (
+              <Question questionNo={i + 1} code={props.code} />
+            ))}
+          </Content2Xl>
+        </PrimaryBackgroundContainer>
+      </AnimationRevealPage>
+    );
+  }
 };
 
 export default TestLink;
