@@ -82,14 +82,14 @@ const TestLink = (props) => {
           if (details.exists) {
             setQuestions(details.data().questions);
             setData(details);
-            console.log(details.data());
+            console.log("DETAILS: ", details.data());
             //console.log([...Array(parseInt(data.data().questions))]);
           } else {
             setQuestions(0);
           }
         });
     }
-  }, [props.code, data]);
+  }, [props.code]);
 
   const navLinks = [];
 
@@ -100,9 +100,9 @@ const TestLink = (props) => {
           <Content2Xl>
             <Header logoLink={logoLink} links={navLinks} />
             <div tw="bg-primary-500 rounded-lg p-20">
-                <Container>
-                  <h2 tw="text-3xl sm:text-4xl font-bold">Test Loading...</h2>
-                </Container>
+              <Container>
+                <h2 tw="text-3xl sm:text-4xl font-bold">Test Loading...</h2>
+              </Container>
             </div>
           </Content2Xl>
         </PrimaryBackgroundContainer>
@@ -130,17 +130,19 @@ const TestLink = (props) => {
                         Submit each answer individually
                       </h6>
                     </Container>
-                    <SubmitButton type="submit" value="Submit">
-                      Submit
-                    </SubmitButton>
                   </div>
                 )
               )}
             </div>
-  
-            {questions !== 0 && [...Array(parseInt(data.data().questions))].map((x, i) => (
-              <Question questionNo={i + 1} code={props.code} />
-            ))}
+
+            {questions !== 0 &&
+              [...Array(parseInt(data.data().questions))].map((x, i) => (
+                <Question questionNo={i + 1} code={props.code} />
+              ))}
+
+            <SubmitButton type="submit" value="Submit" tw="mb-8" onClick={() => navigate("/")}>
+              Submit
+            </SubmitButton>
           </Content2Xl>
         </PrimaryBackgroundContainer>
       </AnimationRevealPage>

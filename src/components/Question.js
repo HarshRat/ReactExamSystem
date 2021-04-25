@@ -35,7 +35,11 @@ const TextArea = tw.div`h-24 sm:h-full`;
 const SubmitButton = tw.button`w-full sm:w-48 mt-6 py-3 bg-gray-100 text-primary-500 rounded-full font-bold tracking-wide shadow-lg uppercase text-sm transition duration-300 transform focus:outline-none focus:shadow-outline hover:bg-gray-300 hover:text-primary-700 hocus:-translate-y-px hocus:shadow-xl cursor-pointer`;
 
 const Forms = (props) => {
+  const [questionData, setQuestionData] = React.useState(null);
+  const [options, setOptions] = React.useState(null);
+
   React.useEffect(() => {
+    let arr = [];
     firestore
       .collection("test")
       .doc(props.code)
@@ -43,28 +47,59 @@ const Forms = (props) => {
       .doc(props.questionNo.toString())
       .get()
       .then((values) => {
-        console.log(values);
+        setQuestionData(values.data());
+        arr.push(values.data().correctAnswer);
+        arr.push(values.data().option1);
+        arr.push(values.data().option2);
+        arr.push(values.data().option3);
+        arr = shuffle(arr);
+        setOptions(arr);
+        console.log(values.data());
       });
   }, [props]);
 
+  function shuffle(array) {
+    var currentIndex = array.length,
+      temporaryValue,
+      randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+
+      // And swap it with the current element.
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+  }
+
+  const [selectedOption, setSelectedOption] = React.useState(null);
+
   const formik = useFormik({
-    initialValues: {
-      question: "",
-      correctAnswer: "",
-      option1: "",
-      option2: "",
-      option3: "",
-    },
-    onSubmit: (values) => {
-      console.log(values);
+    initialValues: {},
+    onSubmit: () => {
+      let values = {};
+      console.log(options[selectedOption], questionData.correctAnswer);
+      if (options[selectedOption] === questionData.correctAnswer) {
+        values.given = "correct";
+      } else {
+        values.given = "incorrect";
+      }
       firestore
         .collection("test")
-        .doc(props.uuid)
-        .collection("questions")
+        .doc(props.code)
+        .collection("attempts")
+        .doc(auth.currentUser.uid)
+        .collection("answers")
         .doc(props.questionNo.toString())
         .set(values)
         .then(() => {
-          alert("Question uploaded.");
+          alert("Answer uploaded.");
         })
         .catch((e) => console.log("ERR", e));
     },
@@ -79,54 +114,70 @@ const Forms = (props) => {
             <form onSubmit={formik.handleSubmit}>
               <InputContainer tw="flex-1">
                 <Label htmlFor="name-input">Question</Label>
-                <TextArea id="name-input" name="question">
-                  {}
-                </TextArea>
+                <div id="name-input" name="question" tw="left-0 absolute pt-2">
+                  {questionData && questionData.question}
+                </div>
               </InputContainer>
               <TwoColumn>
                 <Column>
-                  <InputContainer>
-                    <Label htmlFor="correct-answer">Correct Answer</Label>
-                    <Input
-                      id="correct-answer"
-                      type="text"
-                      name="correctAnswer"
-                      onChange={formik.handleChange}
-                      value={formik.values.correctAnswer}
-                    />
-                  </InputContainer>
-                  <InputContainer>
-                    <Label htmlFor="option-2">Option 2</Label>
-                    <Input
-                      id="option-2"
-                      type="text"
-                      name="option2"
-                      onChange={formik.handleChange}
-                      value={formik.values.option2}
-                    />
-                  </InputContainer>
+                  <div tw="mt-4">
+                    <div
+                      tw="mt-2 flex-row justify-start"
+                      onClick={() => setSelectedOption(0)}
+                    >
+                      <input
+                        type="radio"
+                        className="form-radio"
+                        name="option"
+                        value="0"
+                      />
+                      <span tw="ml-2">{options && options[0]}</span>
+                    </div>
+                  </div>
+                  <div tw="mt-4">
+                    <div
+                      tw="mt-2 flex-row justify-start"
+                      onClick={() => setSelectedOption(2)}
+                    >
+                      <input
+                        type="radio"
+                        className="form-radio"
+                        name="option"
+                        value="2"
+                      />
+                      <span tw="ml-2">{options && options[2]}</span>
+                    </div>
+                  </div>
                 </Column>
                 <Column>
-                  <InputContainer>
-                    <Label htmlFor="option-1">Option 1</Label>
-                    <Input
-                      id="option-1"
-                      type="text"
-                      name="option1"
-                      onChange={formik.handleChange}
-                      value={formik.values.option1}
-                    />
-                  </InputContainer>
-                  <InputContainer>
-                    <Label htmlFor="option-3">Option 3</Label>
-                    <Input
-                      id="option-3"
-                      type="text"
-                      name="option3"
-                      onChange={formik.handleChange}
-                      value={formik.values.option3}
-                    />
-                  </InputContainer>
+                  <div tw="mt-4">
+                    <div
+                      tw="mt-2 flex-row justify-start"
+                      onClick={() => setSelectedOption(1)}
+                    >
+                      <input
+                        type="radio"
+                        className="form-radio"
+                        name="option"
+                        value="1"
+                      />
+                      <span tw="ml-2">{options && options[1]}</span>
+                    </div>
+                  </div>
+                  <div tw="mt-4">
+                    <div
+                      tw="mt-2 flex-row justify-start"
+                      onClick={() => setSelectedOption(3)}
+                    >
+                      <input
+                        type="radio"
+                        className="form-radio"
+                        name="option"
+                        value="3"
+                      />
+                      <span tw="ml-2">{options && options[3]}</span>
+                    </div>
+                  </div>
                 </Column>
               </TwoColumn>
               <SubmitButton type="submit" value="Submit">
