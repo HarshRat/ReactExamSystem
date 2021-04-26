@@ -95,6 +95,12 @@ const Forms = (props) => {
         .doc(props.code)
         .collection("attempts")
         .doc(auth.currentUser.uid)
+        .set({ exists: "true" });
+      firestore
+        .collection("test")
+        .doc(props.code)
+        .collection("attempts")
+        .doc(auth.currentUser.uid)
         .collection("answers")
         .doc(props.questionNo.toString())
         .set(values)
