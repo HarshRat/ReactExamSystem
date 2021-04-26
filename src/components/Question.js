@@ -95,6 +95,7 @@ const Forms = (props) => {
         .doc(props.code)
         .collection("attempts")
         .doc(auth.currentUser.uid)
+        .set({ exists: "true" })
         .collection("answers")
         .doc(props.questionNo.toString())
         .set(values)

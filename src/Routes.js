@@ -5,15 +5,19 @@ import SignUp from "./components/Signup";
 import Create from "./components/Create";
 import Give from "./components/Give";
 import TestLink from "./components/TestLink";
+import ResultForm from "./components/ResultForm";
+import Results from "./components/Results";
 
 export const routes = {
-    "/": () => <Home />,
-    "/create": () => <Create />,
-    "/give": () => <Give />,
-    "/testlink/:code": ({code}) => <TestLink code={code} />,
+  "/": () => <Home />,
+  "/create": () => <Create />,
+  "/give": () => <Give />,
+  "/testlink/:code": ({ code }) => <TestLink code={code} />,
+  "/results/:code": ({ code }) => <Results code={code} />,
+  "/getResult": () => <ResultForm />,
 };
 
 export const guestRoutes = {
-    "/login": () => <Login />,
-    "/signup": () => <SignUp />,
-}
+  "/login": () => <Login />,
+  "/signup": () => <SignUp />,
+};
