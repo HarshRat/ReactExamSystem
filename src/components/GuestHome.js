@@ -56,48 +56,12 @@ const Home = ({
 }) => {
   const logoLink = <LogoLink href="/">Exam Platform</LogoLink>;
 
-  const [userType, setUserTpe] = React.useState("student");
-  React.useEffect(() => {
-    if (auth.currentUser) {
-      firestore
-        .collection("user")
-        .doc(auth.currentUser.uid)
-        .get()
-        .then((details) => {
-          setUserTpe(details.data().userType);
-        });
-    }
-  }, []);
-
-  const navLinks =
-    userType === "student"
-      ? [
-          <NavLinks key={1}>
-            <NavLink href="/give">Give Test</NavLink>
-            <PrimaryLink
-              onClick={() => {
-                auth.signOut();
-                navigate("/login");
-              }}
-            >
-              Sign Out
-            </PrimaryLink>
-          </NavLinks>,
-        ]
-      : [
-          <NavLinks key={1}>
-            <NavLink href="/create">Create Test</NavLink>
-            <NavLink href="/getResult">Generate Result</NavLink>
-            <PrimaryLink
-              onClick={() => {
-                auth.signOut();
-                navigate("/login");
-              }}
-            >
-              Sign Out
-            </PrimaryLink>
-          </NavLinks>,
-        ];
+  const navLinks = [
+    <NavLinks key={1}>
+      <NavLink href="/login">Login</NavLink>
+      <PrimaryLink href="/signup">Sign Up</PrimaryLink>
+    </NavLinks>,
+  ];
 
   return (
     <AnimationRevealPage>
@@ -110,15 +74,9 @@ const Home = ({
                 <TextColumn>
                   <Heading>{heading}</Heading>
                   <Description>{description}</Description>
-                  {userType === "student" ? (
-                    <PrimaryButton as="a" href={primaryButtonUrl}>
-                      Give Test
-                    </PrimaryButton>
-                  ) : (
-                    <PrimaryButton as="a" href={secondButtonUrl}>
-                      Create Test
-                    </PrimaryButton>
-                  )}
+                  <PrimaryButton as="a" href="/login">
+                    Login
+                  </PrimaryButton>
                 </TextColumn>
                 <IllustrationColumn>
                   <Image src={imageSrc} />
